@@ -170,11 +170,12 @@ async function loadEngagements(clientId){
 }
 
 // ---- Modals: create client + engagement ----
-async function createClient(name){
+async function createClientRecord(name){
   const { data, error } = await sb.from("clients").insert({ name }).select("id,name").single();
   if(error) throw error;
   return data;
 }
+
 
 async function createEngagement(client_id, name, year_end){
   const { data, error } = await sb.from("engagements")
@@ -228,7 +229,7 @@ async function init(){
     const name = $("newClientName").value.trim();
     if(!name){ $("clientErr").textContent="Client name required"; return; }
     try{
-      await createClient(name);
+      await createClientRecord(name);
       showModal("clientModal", false);
       await loadClients();
     }catch(e){ $("clientErr").textContent=e?.message||"Failed"; }
