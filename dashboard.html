@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>FY Audit Program — Dashboard</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <!-- LOGIN MODAL -->
+  <div class="modal show" id="loginModal" role="dialog" aria-modal="true" aria-labelledby="loginTitle">
+    <div class="card">
+      <div class="cardhead">
+        <h2 id="loginTitle">Login</h2>
+      </div>
+
+      <div class="cardbody">
+        <div class="field">
+          <label for="loginUser">Email</label>
+          <input id="loginUser" autocomplete="username" placeholder="abc@gmail.com" />
+        </div>
+
+        <div class="field">
+          <label for="loginPass">Password</label>
+          <input id="loginPass" type="password" autocomplete="current-password" placeholder="password" />
+        </div>
+
+        <div class="actions">
+          <button class="primary" id="btnLogin" type="button">Sign in</button>
+        </div>
+
+        <div class="error" id="loginError" aria-live="polite"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- APP SHELL -->
+  <div class="app hidden" id="appShell" aria-hidden="true">
+    <!-- TOP BAR -->
+    <header class="topbar">
+      <div class="brand">
+        <div class="logo">FY</div>
+        <div class="brandtext">
+          <div class="t1">FAKHARUDDIN YOUSAFALI &amp; CO</div>
+          <div class="t2">CHARTERED ACCOUNTANTS</div>
+        </div>
+      </div>
+
+      <div class="topactions">
+        <span class="pill" id="pillUser">User: —</span>
+        <span class="pill" id="pillRole">Role: —</span>
+        <button class="btn" id="btnLogout" type="button">Logout</button>
+      </div>
+    </header>
+
+    <!-- MAIN -->
+    <div class="wrap" style="grid-template-columns: 1fr;">
+      <main class="main">
+        <div class="stepshead">
+          <div class="crumb">
+            <div class="h1">Dashboard</div>
+            <div class="h2">Clients → Engagements</div>
+          </div>
+          <div class="progwrap">
+            <button class="ghost" id="btnNewClient" type="button">+ New Client</button>
+            <button class="primary" id="btnNewEng" type="button">+ New Engagement</button>
+          </div>
+        </div>
+
+        <div class="maintop" style="margin-bottom:12px;">
+          <div class="tabs">
+            <button class="tab active" type="button" data-tab="clients">Clients</button>
+            <button class="tab" type="button" data-tab="engagements">Engagements</button>
+          </div>
+        </div>
+
+        <section id="panelClients">
+          <div class="field">
+            <label for="qClient">Search clients</label>
+            <input id="qClient" placeholder="Type client name..." />
+          </div>
+          <div class="list" id="clientList"></div>
+          <div class="hint">Click a client to view engagements.</div>
+        </section>
+
+        <section id="panelEngagements" class="hidden">
+          <div class="field">
+            <label>Client</label>
+            <input id="selClientName" disabled />
+          </div>
+
+          <div class="list" id="engList"></div>
+          <div class="hint">Open an engagement to continue.</div>
+          <div class="actions" style="justify-content:flex-start;">
+            <button class="ghost" id="btnBackClients" type="button">← Back</button>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <!-- MODAL: New Client -->
+    <div class="modal" id="clientModal" role="dialog" aria-modal="true" aria-labelledby="clientTitle">
+      <div class="card">
+        <div class="cardhead">
+          <h2 id="clientTitle">New Client</h2>
+          <button class="iconbtn" id="closeClientModal" type="button" title="Close">×</button>
+        </div>
+        <div class="cardbody">
+          <div class="field">
+            <label for="newClientName">Client name</label>
+            <input id="newClientName" placeholder="ABC (Pvt.) Ltd." />
+          </div>
+          <div class="actions" style="justify-content:flex-start;">
+            <button class="primary" id="btnCreateClient" type="button">Create</button>
+            <button class="ghost" id="btnCancelClient" type="button">Cancel</button>
+          </div>
+          <div class="error" id="clientErr"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL: New Engagement -->
+    <div class="modal" id="engModal" role="dialog" aria-modal="true" aria-labelledby="engTitle">
+      <div class="card">
+        <div class="cardhead">
+          <h2 id="engTitle">New Engagement</h2>
+          <button class="iconbtn" id="closeEngModal" type="button" title="Close">×</button>
+        </div>
+        <div class="cardbody">
+          <div class="field">
+            <label for="engClient">Client</label>
+            <select id="engClient" class="pillselect" style="width:100%; color:#0b1220; background:#fff; border:1px solid var(--line);"></select>
+          </div>
+          <div class="field">
+            <label for="engYearEnd">Year end (YYYY-MM-DD)</label>
+            <input id="engYearEnd" placeholder="2025-06-30" />
+          </div>
+          <div class="field">
+            <label for="engName">Engagement name</label>
+            <input id="engName" placeholder="Statutory Audit — FY2025" />
+          </div>
+          <div class="actions" style="justify-content:flex-start;">
+            <button class="primary" id="btnCreateEng" type="button">Create</button>
+            <button class="ghost" id="btnCancelEng" type="button">Cancel</button>
+          </div>
+          <div class="error" id="engErr"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Supabase client (set your URL/key in app.js) -->
+  <script type="module" src="app.js"></script>
+</body>
+</html>
