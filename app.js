@@ -170,6 +170,10 @@ async function loadEngagements(clientId){
 }
 
 // ---- Modals: create client + engagement ----
+
+const { data: sessionRes } = await sb.auth.getSession();
+console.log("SESSION:", sessionRes?.session);
+
 async function createClientRecord(name) {
   const { data: userRes, error: userErr } = await sb.auth.getUser();
   if (userErr) throw userErr;
