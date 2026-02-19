@@ -170,21 +170,42 @@ async function loadEngagements(clientId){
 }
 
 // ---- Modals: create client + engagement ----
-async function createClientRecord(name){
-  const { data, error } = await sb.from("clients").insert({ name }).select("id,name").single();
-  if(error) throw error;
+async function createClientRecord(name) {
+  const { data: userRes, error: userErr } = await sb.auth.getUser();
+  if (userErr) throw userErr;
+
+  const userId = userRes?.user?.id;
+  if (!userId) throw new Error("Not logged in (no user id). Please logout/login again.");
+
+  const { data, error } = await sb
+    .from("clients")
+    .insert({ name, created_by: userId })
+    .select("id,name")
+    .single();
+
+  if (error) throw error;
   return data;
 }
 
 
-async function createEngagement(client_id, name, year_end){
-  const { data, error } = await sb.from("engagements")
-    .insert({ client_id, name, year_end })
+
+async function createEngagement(client_id, name, year_end) {
+  const { data: userRes, error: userErr } = await sb.auth.getUser();
+  if (userErr) throw userErr;
+
+  const userId = userRes?.user?.id;
+  if (!userId) throw new Error("Not logged in (no user id). Please logout/login again.");
+
+  const { data, error } = await sb
+    .from("engagements")
+    .insert({ client_id, name, year_end, created_by: userId })
     .select("id, client_id, name, year_end")
     .single();
-  if(error) throw error;
+
+  if (error) throw error;
   return data;
 }
+
 
 // ---- Realtime ----
 function wireRealtime(){
