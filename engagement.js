@@ -1,10 +1,18 @@
 // engagement.js (module) — Financial Statements + Audit Program pages (linked)
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
 
-// Keep identical config to app.js
+// Keep identical config to fs-v2.js / app.js
 const SUPABASE_URL = "https://syfnepulwwzwcfwjruwn.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN5Zm5lcHVsd3d6d2Nmd2pydXduIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE0MDQ4MjAsImV4cCI6MjA4Njk4MDgyMH0.JhjdCtj-ezy9tsA4kz1QmR3mk71kVyucs8v7OlcGEIk";
-const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+  auth: {
+    persistSession: true,
+    autoRefreshToken: true,
+    detectSessionInUrl: true,
+    flowType: "pkce",
+    storage: window.localStorage
+  }
+});
 
 const $ = (id) => document.getElementById(id);
 const el = (tag, cls) => { const x=document.createElement(tag); if(cls) x.className=cls; return x; };
@@ -22,13 +30,13 @@ function fmt(n){
 
 async function logout(){
   await sb.auth.signOut();
-  location.href = "dashboard.html";
+  location.href = "index.html";
 }
 
 async function ensureSession(){
   const { data } = await sb.auth.getSession();
   if(!data?.session){
-    location.href = "dashboard.html";
+    location.href = "index.html";
     throw new Error("No session");
   }
 }
@@ -250,7 +258,7 @@ function wireFSRealtime(){
 
 async function bootFS(){
   await ensureSession();
-  if(!engagement_id) { location.href="dashboard.html"; return; }
+  if(!engagement_id) { location.href="index.html"; return; }
 
   $("btnLogout")?.addEventListener("click", logout);
 
@@ -582,7 +590,7 @@ function wirePasteExcel(){
 
 async function bootAudit(){
   await ensureSession();
-  if(!engagement_id) { location.href="dashboard.html"; return; }
+  if(!engagement_id) { location.href="index.html"; return; }
 
   $("btnLogout")?.addEventListener("click", logout);
   const toFS = $("btnToFS");
