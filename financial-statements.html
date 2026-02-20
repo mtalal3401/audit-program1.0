@@ -113,9 +113,21 @@
           <div class="error" id="uploadErr"></div>
         </section>
 
-        <section id="page_tb" class="hidden"></section>
-        <section id="page_sofp" class="hidden"></section>
-        <section id="page_sopl" class="hidden"></section>
+        <!-- TB / FS toolbars are injected by fs-v2.js -->
+        <section id="page_tb" class="hidden">
+          <div id="tbToolbar"></div>
+          <div id="tbOut"></div>
+        </section>
+
+        <section id="page_sofp" class="hidden">
+          <div id="sofpToolbar"></div>
+          <div id="sofpOut"></div>
+        </section>
+
+        <section id="page_sopl" class="hidden">
+          <div id="soplToolbar"></div>
+          <div id="soplOut"></div>
+        </section>
         <section id="page_cfs" class="hidden"></section>
 
         <section id="page_lead" class="hidden">
@@ -132,6 +144,6 @@
     </div>
   </div>
 
-  <script type="module" src="engagement.js"></script>
+  <script type="module" src="fs-v2.js"></script>
 </body>
 </html>
