@@ -107,8 +107,8 @@ function renderClientRow(c) {
 function renderEngRow(e) {
   const row = el("div", "listitem");
   const left = el("div");
-  const t = el("div", "ltitle"); t.textContent = e.name || `Engagement — ${e.year_end || ""}`;
-  const m = el("div", "lmeta"); m.textContent = `Year end: ${e.year_end || "—"}`;
+  const t = el("div", "ltitle"); t.textContent = e.name || `Engagement — ${fmtDateDDMMMYYYY(e.year_end)}`;
+  const m = el("div", "lmeta"); m.textContent = `Year end: ${fmtDateDDMMMYYYY(e.year_end)}`;
   left.append(t, m);
 
   const right = el("div", "lactions");
