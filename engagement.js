@@ -338,6 +338,7 @@ function buildTree(){
     (section.items||[]).forEach(item=>{
       const ch = el("div","child");
       ch.dataset.key = item.key;
+      ch.dataset.search = `${item.label || ""} ${item.key || ""}`.toLowerCase();
       ch.innerHTML = `<div class="ctitle">${item.label}</div><div class="cmeta">${item.key}</div>`;
       children.append(ch);
     });
@@ -353,6 +354,20 @@ function buildTree(){
     });
   });
 }
+function filterTree(query){
+  const q = (query || "").trim().toLowerCase();
+  document.querySelectorAll(".node").forEach(node=>{
+    const children = Array.from(node.querySelectorAll(".child"));
+    let visibleCount = 0;
+    children.forEach(ch=>{
+      const match = !q || (ch.dataset.search || "").includes(q);
+      ch.style.display = match ? "" : "none";
+      if(match) visibleCount += 1;
+    });
+    node.style.display = visibleCount ? "" : "none";
+  });
+}
+
 
 function setAreaTabs(active){
   document.querySelectorAll(".area-tab").forEach(b=>b.classList.toggle("active", b.dataset.areaTab===active));
@@ -394,13 +409,27 @@ async function loadResponses(area_key, phase){
   return map;
 }
 
-function renderSteps(area_key, phase){
+function paintProgress(total, done){
+  const pct = total ? Math.round((done / total) * 100) : 0;
+  if($("barFill")) $("barFill").style.width = `${pct}%`;
+  if($("pctTxt")) $("pctTxt").textContent = `${pct}%`;
+  if($("lockNote")) $("lockNote").textContent = `${done}/${total} steps answered`;
+}
+
+async function renderSteps(area_key, phase){
   const area = window.PROGRAM_DB?.areas?.[area_key];
   const stepsBox = $("steps");
   stepsBox.innerHTML="";
 
   const steps = area?.procedures?.[phase] || [];
+  const responseMap = await loadResponses(area_key, phase).catch(()=>new Map());
+  let answeredCount = 0;
+  
   steps.forEach((s, idx)=>{
+    const stepId = s.id || `${area_key}-${phase}-${idx+1}`;
+    const existing = responseMap.get(stepId)?.answer || "";
+    if(existing) answeredCount += 1;
+    
     const row = el("div","row");
     const left = el("div");
     const t = el("div","rtext"); t.textContent = s.text || s.heading || `Step ${idx+1}`;
@@ -412,18 +441,26 @@ function renderSteps(area_key, phase){
       const lab = document.createElement("label");
       const inp = document.createElement("input");
       inp.type="radio";
-      inp.name = `step_${area_key}_${phase}_${s.id||idx}`;
+     inp.name = `step_${area_key}_${phase}_${stepId}`;
       inp.value = val;
+      inp.checked = existing === val;
       lab.append(inp, document.createTextNode(" "+lbl));
-      lab.addEventListener("click", async ()=>{
+      inp.addEventListener("change", async ()=>{
+      if(!inp.checked) return;
         try{
           await sb.rpc("upsert_procedure_response", {
             p_engagement_id: engagement_id,
             p_area_key: area_key,
             p_phase: phase,
-            p_step_id: s.id || `${area_key}-${phase}-${idx+1}`,
+            p_step_id: stepId,
             p_answer: val
           });
+          responseMap.set(stepId, { answer: val });
+          const done = steps.reduce((acc, step, i)=>{
+            const id = step.id || `${area_key}-${phase}-${i+1}`;
+            return acc + (responseMap.get(id)?.answer ? 1 : 0);
+          }, 0);
+          paintProgress(steps.length, done);
         }catch(e){ console.error(e); }
       });
       return lab;
@@ -440,7 +477,7 @@ function renderSteps(area_key, phase){
         engagement_id,
         area_key,
         phase,
-        step_id: s.id || `${area_key}-${phase}-${idx+1}`,
+        step_id: stepId,
         body: msg
       });
     };
@@ -449,6 +486,8 @@ function renderSteps(area_key, phase){
     row.append(left, decision, acts);
     stepsBox.append(row);
   });
+
+  paintProgress(steps.length, answeredCount);
 }
 
 async function refreshLeadFromFS(){
@@ -603,11 +642,13 @@ async function bootAudit(){
     b.addEventListener("click", ()=>{
       setPhaseTabs(b.dataset.phase);
       if(currentAreaKey){
-        renderSteps(currentAreaKey, b.dataset.phase);
+        renderSteps(currentAreaKey, b.dataset.phase).catch(console.error);
       }
     });
   });
 
+  $("filter")?.addEventListener("input", (e)=> filterTree(e.target.value));
+  
   // Select first Audit Program area
   const firstAudit = window.PROGRAM_DB?.contents?.find(x=>x.sectionTitle==="Audit Program")?.items?.[0]?.key;
   currentAreaKey = firstAudit || "PPE";
@@ -637,7 +678,7 @@ async function bootAudit(){
 
       // Also render steps (fieldwork tab uses current phase)
       const activePhase = document.querySelector(".tab.active")?.dataset.phase || "Analytical Procedures";
-      renderSteps(currentAreaKey, activePhase);
+      await renderSteps(currentAreaKey, activePhase);
     });
   });
 
@@ -676,7 +717,7 @@ async function bootAudit(){
   setAreaTabs("lead");
   setPhaseTabs("Analytical Procedures");
   await refreshLeadFromFS();
-  renderSteps(currentAreaKey, "Analytical Procedures");
+  await renderSteps(currentAreaKey, "Analytical Procedures");
 }
 
 (async function main(){
