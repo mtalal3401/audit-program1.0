@@ -25,6 +25,16 @@ export const sb = supabaseCreateClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
 const $ = (id) => document.getElementById(id);
 const el = (tag, cls) => { const x = document.createElement(tag); if (cls) x.className = cls; return x; };
 
+function fmtDateDDMMMYYYY(value) {
+  if (!value) return "—";
+  const d = new Date(value);
+  if (Number.isNaN(d.getTime())) return value;
+  const dd = String(d.getDate()).padStart(2, "0");
+  const mmm = d.toLocaleString("en", { month: "short" }).toUpperCase();
+  const yyyy = d.getFullYear();
+  return `${dd}/${mmm}/${yyyy}`;
+}
+
 function showModal(id, on) {
   const m = $(id);
   if (!m) return;
