@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>FY — Audit Program</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <!-- This page reuses your existing UI patterns (sidebar contents, phases tabs, lead schedule tab). -->
+  <div class="app" id="appShell">
+    <header class="topbar">
+      <div class="brand">
+        <div class="logo">FY</div>
+        <div class="brandtext">
+          <div class="t1">FAKHARUDDIN YOUSAFALI &amp; CO</div>
+          <div class="t2">CHARTERED ACCOUNTANTS</div>
+        </div>
+      </div>
+
+      <div class="topactions">
+        <span class="pill pill-plain">
+          <span class="pilllbl">Engagement</span>
+          <span class="pill" id="pillEng" style="background:rgba(255,255,255,.10); border-color:rgba(255,255,255,.16);">—</span>
+        </span>
+        <a class="btn" id="btnToFS" href="financial-statements.html">Financial Statements</a>
+        <a class="btn" href="index.html">Dashboard</a>
+        <button class="btn" id="btnLogout" type="button">Logout</button>
+      </div>
+    </header>
+
+    <div class="wrap">
+      <aside class="side">
+        <div class="sidehead">
+          <h3>Contents</h3>
+          <span class="badge" id="badgeMode">Realtime</span>
+        </div>
+
+        <div class="search">
+          <input id="filter" placeholder="Search contents…" />
+        </div>
+
+        <div class="tree" id="tree"></div>
+      </aside>
+
+      <main class="main">
+        <div class="areaheader">
+          <div class="crumb">
+            <div class="h1" id="crumbTitle">—</div>
+            <div class="h2" id="crumbSub">—</div>
+          </div>
+          <div class="signoff">
+            <label class="so"><input type="checkbox" id="chkPrepared" /><span>Prepared</span></label>
+            <label class="so"><input type="checkbox" id="chkReviewed" /><span>Reviewed</span></label>
+            <label class="so"><input type="checkbox" id="chkSignedOff" /><span>Signed Off</span></label>
+            <label class="so so-na"><input type="checkbox" id="chkNotApplicable" /><span>N/A</span></label>
+          </div>
+        </div>
+
+        <div class="area-tabs" id="areaTabs">
+          <button class="area-tab active" type="button" data-area-tab="lead">Lead Schedule</button>
+          <button class="area-tab" type="button" data-area-tab="fieldwork">Fieldwork</button>
+          <button class="area-tab" type="button" data-area-tab="conclusion">Conclusion</button>
+        </div>
+
+        <!-- LEAD SCHEDULE PANEL -->
+        <div class="area-panel" id="panelLead">
+          <div class="ls-toolbar">
+            <div class="ls-toolbar-left">
+              <span class="ls-hint">This Lead Schedule is generated from FS uploads OR can be pasted from Excel.</span>
+            </div>
+            <div class="ls-toolbar-right">
+              <button class="ghost ls-btn" id="btnLsRefresh" type="button">↻ Refresh from FS</button>
+              <button class="ghost ls-btn" id="btnLsPaste" type="button">📋 Paste from Excel</button>
+              <button class="ghost ls-btn" id="btnLsClear" type="button">🗑 Clear</button>
+              <span class="ls-sync-status" id="lsSyncStatus"></span>
+            </div>
+          </div>
+
+          <div class="ls-dropzone" id="lsDropzone" tabindex="0">
+            <div class="ls-dropzone-inner" id="lsDropzoneInner">
+              <div class="ls-dz-icon">📊</div>
+              <div class="ls-dz-title">Paste your Lead Schedule from Excel</div>
+              <div class="ls-dz-sub">Copy cells in Excel → click here → Ctrl+V</div>
+            </div>
+          </div>
+
+          <div class="ls-grid-wrap" id="lsGridWrap" style="display:none;">
+            <div class="ls-grid-scroll">
+              <table class="ls-grid" id="lsGrid"></table>
+            </div>
+            <div class="ls-grid-footer">
+              <span class="ls-grid-meta" id="lsGridMeta"></span>
+              <button class="ghost ls-btn-sm" id="btnLsAddRow" type="button">+ Add row</button>
+              <button class="ghost ls-btn-sm" id="btnLsAddCol" type="button">+ Add column</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- FIELDWORK PANEL -->
+        <div class="area-panel" id="panelFieldwork" style="display:none;">
+          <div class="stepshead">
+            <div class="progwrap" style="margin-left:0; flex:1;">
+              <div class="bar"><div id="barFill" style="width:0%"></div></div>
+              <div class="pct" id="pctTxt">0%</div>
+              <div class="note" id="lockNote">—</div>
+            </div>
+          </div>
+
+          <div class="maintop">
+            <div class="tabs" id="tabs">
+              <button class="tab active" type="button" data-phase="Analytical Procedures">Analytical Procedures</button>
+              <button class="tab" type="button" data-phase="Test of Controls">Test of Controls</button>
+              <button class="tab" type="button" data-phase="Test of Details">Test of Details</button>
+            </div>
+          </div>
+
+          <section class="steps">
+            <div class="shead">
+              <div class="t">Steps</div>
+              <div class="cols"><div>Yes</div><div>No</div><div>N/A</div></div>
+              <div></div>
+            </div>
+            <div id="steps"></div>
+          </section>
+        </div>
+
+        <!-- CONCLUSION PANEL -->
+        <div class="area-panel" id="panelConclusion" style="display:none;">
+          <div class="conclusion-wrap" id="conclusionWrap"></div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script src="procedures-db.js"></script>
+  <script type="module" src="engagement.js"></script>
+</body>
+</html>

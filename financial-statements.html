@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>FY — Financial Statements</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="app" id="appShell">
+    <header class="topbar">
+      <div class="brand">
+        <div class="logo">FY</div>
+        <div class="brandtext">
+          <div class="t1">FAKHARUDDIN YOUSAFALI &amp; CO</div>
+          <div class="t2">CHARTERED ACCOUNTANTS</div>
+        </div>
+      </div>
+
+      <div class="topactions">
+        <span class="pill pill-plain">
+          <span class="pilllbl">Engagement</span>
+          <span class="pill" id="pillEng" style="background:rgba(255,255,255,.10); border-color:rgba(255,255,255,.16);">—</span>
+        </span>
+        <a class="btn" id="btnToAudit" href="audit-program.html">Audit Program</a>
+        <a class="btn" href="index.html">Dashboard</a>
+        <button class="btn" id="btnLogout" type="button">Logout</button>
+      </div>
+    </header>
+
+    <div class="wrap" style="grid-template-columns: 310px 1fr;">
+      <aside class="side">
+        <div class="sidehead">
+          <h3>Financial Statements</h3>
+          <span class="badge" id="badgeMode">Realtime</span>
+        </div>
+
+        <div class="tree">
+          <div class="node">
+            <div class="nodehdr">
+              <div class="left">
+                <div class="caret">›</div>
+                <div class="nodetitle">Uploads</div>
+              </div>
+            </div>
+            <div class="children">
+              <div class="child active" data-page="upload">
+                <div class="ctitle">General Ledger + COA</div>
+                <div class="cmeta">CSV</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="node">
+            <div class="nodehdr">
+              <div class="left">
+                <div class="caret">›</div>
+                <div class="nodetitle">Outputs</div>
+              </div>
+            </div>
+            <div class="children">
+              <div class="child" data-page="tb"><div class="ctitle">Trial Balance</div><div class="cmeta">Auto</div></div>
+              <div class="child" data-page="sofp"><div class="ctitle">Statement of Financial Position</div><div class="cmeta">Auto</div></div>
+              <div class="child" data-page="sopl"><div class="ctitle">Statement of Financial Performance</div><div class="cmeta">Auto</div></div>
+              <div class="child" data-page="cfs"><div class="ctitle">Cash Flow (Indirect)</div><div class="cmeta">Draft</div></div>
+            </div>
+          </div>
+
+          <div class="node">
+            <div class="nodehdr">
+              <div class="left">
+                <div class="caret">›</div>
+                <div class="nodetitle">Lead Schedules</div>
+              </div>
+            </div>
+            <div class="children">
+              <div class="child" data-page="lead"><div class="ctitle">Generate / Refresh</div><div class="cmeta">Audit</div></div>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      <main class="main">
+        <div class="stepshead">
+          <div class="crumb">
+            <div class="h1" id="pageTitle">—</div>
+            <div class="h2" id="pageSub">—</div>
+          </div>
+          <div class="progwrap">
+            <span class="badge" id="syncState">—</span>
+          </div>
+        </div>
+
+        <section id="page_upload">
+          <div class="field">
+            <label>Chart of Accounts (CSV)</label>
+            <input id="coaFile" type="file" accept=".csv" />
+            <div class="hint">CSV columns required: account_code, account_name, normal_balance (D/C), statement (SOFP/SOPL), section, line_item</div>
+          </div>
+
+          <div class="field">
+            <label>General Ledger (CSV)</label>
+            <input id="glFile" type="file" accept=".csv" />
+            <div class="hint">CSV columns required: txn_date (YYYY-MM-DD), voucher_no, account_code, description, debit, credit</div>
+          </div>
+
+          <div class="actions" style="justify-content:flex-start;">
+            <button class="primary" id="btnUpload" type="button">Upload</button>
+            <button class="ghost" id="btnClearData" type="button">Clear engagement data</button>
+          </div>
+
+          <div class="hint" id="uploadHint">—</div>
+          <div class="error" id="uploadErr"></div>
+        </section>
+
+        <section id="page_tb" class="hidden"></section>
+        <section id="page_sofp" class="hidden"></section>
+        <section id="page_sopl" class="hidden"></section>
+        <section id="page_cfs" class="hidden"></section>
+
+        <section id="page_lead" class="hidden">
+          <div class="hint" style="margin:0 0 10px;">
+            This generates Lead Schedules for Audit Program (per area mapping). You can refine mapping in table <b>area_account_map</b>.
+          </div>
+          <div class="actions" style="justify-content:flex-start;">
+            <button class="primary" id="btnGenLead" type="button">Generate Lead Schedules</button>
+          </div>
+          <div class="hint" id="leadHint">—</div>
+          <div class="error" id="leadErr"></div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <script type="module" src="engagement.js"></script>
+</body>
+</html>
