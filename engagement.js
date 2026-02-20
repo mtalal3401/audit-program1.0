@@ -22,13 +22,13 @@ function fmt(n){
 
 async function logout(){
   await sb.auth.signOut();
-  location.href = "dashboard.html";
+  location.href = "index.html";
 }
 
 async function ensureSession(){
   const { data } = await sb.auth.getSession();
   if(!data?.session){
-    location.href = "dashboard.html";
+    location.href = "index.html";
     throw new Error("No session");
   }
 }
@@ -250,7 +250,7 @@ function wireFSRealtime(){
 
 async function bootFS(){
   await ensureSession();
-  if(!engagement_id) { location.href="dashboard.html"; return; }
+  if(!engagement_id) { location.href="index.html"; return; }
 
   $("btnLogout")?.addEventListener("click", logout);
 
@@ -582,7 +582,7 @@ function wirePasteExcel(){
 
 async function bootAudit(){
   await ensureSession();
-  if(!engagement_id) { location.href="dashboard.html"; return; }
+  if(!engagement_id) { location.href="index.html"; return; }
 
   $("btnLogout")?.addEventListener("click", logout);
   const toFS = $("btnToFS");
