@@ -1264,3 +1264,21 @@ body{
   .fs-table{ font-size:13px; }
   .fs-year-col{ width:120px; }
 }
+
+/* Financial statements comparative format */
+.fs-statement-wrap{ margin-top:8px; }
+.fs-statement-table th.num,
+.fs-statement-table td.num{
+  text-align:right;
+  font-variant-numeric: tabular-nums;
+}
+.stmt-section-row td{
+  background:linear-gradient(180deg,#f8fbff,#f3f7fc);
+  color:#334155;
+  font-size:12px;
+  text-transform:uppercase;
+  letter-spacing:.25px;
+}
+.stmt-section-title{
+  font-weight:900;
+}
