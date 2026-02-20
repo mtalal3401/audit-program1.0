@@ -1,5 +1,5 @@
 // app.js (module) — Dashboard + Auth
-import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
+import { createClient as supabaseCreateClient } from ... "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
 
 /**
  * 1) Put your project URL + anon key here.
