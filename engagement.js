@@ -16,8 +16,20 @@ function q(name){
 const engagement_id = q("engagement_id");
 
 function fmt(n){
-  const x = Number(n||0);
-  return x.toLocaleString(undefined,{maximumFractionDigits:0});
+    const x = Number(n || 0);
+  if (!Number.isFinite(x)) return "0";
+  const absText = Math.abs(Math.round(x)).toLocaleString(undefined, { maximumFractionDigits: 0 });
+  return x < 0 ? `(${absText})` : absText;
+}
+
+function fmtDateDDMMMYYYY(value){
+  if(!value) return "—";
+  const d = new Date(value);
+  if(Number.isNaN(d.getTime())) return value;
+  const dd = String(d.getDate()).padStart(2, "0");
+  const mmm = d.toLocaleString("en", { month: "short" }).toUpperCase();
+  const yyyy = d.getFullYear();
+  return `${dd}/${mmm}/${yyyy}`;
 }
 
 async function logout(){
@@ -162,19 +174,80 @@ async function renderTB(){
   box.append(tableHTML(["Account","Name","Debit","Credit","Net"], rows));
 }
 
-async function renderStatement(viewName, boxId, titleDebit="Amount"){
+function sortStatementRows(rows){
+  const rank = (section)=>{
+    const s = String(section || "").toLowerCase();
+    if(s.includes("asset")) return 1;
+    if(s.includes("liabil")) return 2;
+    if(s.includes("equity")) return 3;
+    if(s.includes("income") || s.includes("revenue")) return 1;
+    if(s.includes("expense") || s.includes("cost")) return 2;
+    return 9;
+  };
+  return [...rows].sort((a,b)=>{
+    const r = rank(a.section) - rank(b.section);
+    if(r!==0) return r;
+    return String(a.line_item || "").localeCompare(String(b.line_item || ""));
+  });
+}
+
+function renderStatementTable(box, rows){
+  const wrap = el("div", "fs-statement-wrap");
+  const tbl = el("table", "conclusion-table fs-statement-table");
+  const thead = el("thead");
+  thead.innerHTML = `<tr><th>Particulars</th><th class="num">Current Year</th><th class="num">Previous Year</th></tr>`;
+  tbl.append(thead);
+
+  const tbody = el("tbody");
+  let prevSection = null;
+  rows.forEach((x)=>{
+    const section = (x.section || "").trim();
+    if(section && section !== prevSection){
+      const trSec = el("tr", "stmt-section-row");
+      const tdSec = el("td", "stmt-section-title");
+      tdSec.colSpan = 3;
+      tdSec.textContent = section;
+      trSec.append(tdSec);
+      tbody.append(trSec);
+      prevSection = section;
+    }
+
+    const tr = el("tr");
+    const tdLine = el("td"); tdLine.textContent = x.line_item || "—";
+    const tdCur = el("td", "num"); tdCur.textContent = fmt(x.currentAmount);
+    const tdPrev = el("td", "num"); tdPrev.textContent = fmt(x.previousAmount);
+    tr.append(tdLine, tdCur, tdPrev);
+    tbody.append(tr);
+  });
+
+  tbl.append(tbody);
+  wrap.append(tbl);
+  box.append(wrap);
+}
+
+async function renderStatement(viewName, boxId){
   const box = $(boxId);
   box.innerHTML="";
   const { data, error } = await sb
     .from(viewName)
-    .select("section, line_item, amount")
-    .eq("engagement_id", engagement_id)
-    .order("section")
-    .order("line_item");
+     .select("*")
+    .eq("engagement_id", engagement_id);
   if(error) throw error;
 
-  const rows = (data||[]).map(x=>[x.section||"—", x.line_item||"—", fmt(x.amount)]);
-  box.append(tableHTML(["Section","Line item", titleDebit], rows));
+  const rows = sortStatementRows((data || []).map((x)=>(
+    {
+      section: x.section || "",
+      line_item: x.line_item || x.particular || x.name || "",
+      currentAmount: x.current_amount ?? x.amount ?? 0,
+      previousAmount: x.previous_amount ?? x.prior_amount ?? x.amount_previous ?? x.prev_amount ?? 0
+    }
+  )));
+
+  if(!rows.length){
+    box.innerHTML = '<div class="emptyState">No statement lines found for this engagement.</div>';
+    return;
+  }
+  renderStatementTable(box, rows);
 }
 
 async function clearEngagementData(){
@@ -309,8 +382,7 @@ async function bootFS(){
 
   // Header
   const eng = await loadEngagement();
-  $("pillEng").textContent = `${eng.client?.name || ""} — ${eng.name || "Engagement"} (${eng.year_end || "—"})`;
-
+  $("pillEng").textContent = `${eng.client?.name || ""} — ${eng.name || "Engagement"} (${fmtDateDDMMMYYYY(eng.year_end)})`;
   wireFSRealtime();
   setFSPage("upload");
 }
@@ -628,8 +700,8 @@ async function bootAudit(){
   if(toFS) toFS.href = `financial-statements.html?engagement_id=${encodeURIComponent(engagement_id)}`;
 
   const eng = await loadEngagement();
-  $("pillEng").textContent = `${eng.client?.name || ""} — ${eng.name || "Engagement"} (${eng.year_end || "—"})`;
-
+  $("pillEng").textContent = `${eng.client?.name || ""} — ${eng.name || "Engagement"} (${fmtDateDDMMMYYYY(eng.year_end)})`;
+  
   buildTree();
 
   // Outer tabs
